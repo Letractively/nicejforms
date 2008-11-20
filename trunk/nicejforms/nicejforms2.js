@@ -27,7 +27,7 @@ Feel free to use and modify but please keep this copyright intact.
 		//Global Variables
 		var resizeTest = 1;
 		
-		if($.browser.msie) return false; //exit script if IE
+		if($.browser.msie && $.browser.version < "7.0") return false; //exit script if IE6 or below
 			
 		this.niceInputText = function(el) { // transform Text inputs
 			
@@ -90,11 +90,7 @@ Feel free to use and modify but please keep this copyright intact.
 			}
 			el.dummy.ref = el;
 			
-			if ($.browser.msie) {
-				$(el.dummy).css({ left: $(el).position().left + 'px', top: $(el).position().top + 'px' });
-			} else {
-				$(el.dummy).css({ left: $(el).position().left + 4 + 'px', top: $(el).position().top + 4 + 'px' });
-			}
+			$(el.dummy).css({ left: $(el).position().left + 4 + 'px', top: $(el).position().top + 4 + 'px' });
 			
 			$(el.dummy).bind('click', function(){
 				
@@ -152,12 +148,9 @@ Feel free to use and modify but please keep this copyright intact.
 				$(el.dummy).addClass('NFCheck');
 			}
 			el.dummy.ref = el;
-			
-			if($.browser.msie) {
-				$(el.dummy).css({ left: $(el).position().left + 'px', top: $(el).position().top + 'px' });
-			} else {
-				$(el.dummy).css({ left: $(el).position().left + 4 + 'px', top: $(el).position().top + 4 + 'px' });
-			}
+
+			$(el.dummy).css({ left: $(el).position().left + 4 + 'px', top: $(el).position().top + 4 + 'px' });
+
 			
 			$(el.dummy)
 				.bind('click', function(){
@@ -251,15 +244,16 @@ Feel free to use and modify but please keep this copyright intact.
 			$(el.button).attr({src: options.imagesPath + "0.png"}).addClass("NFFileButton");
 			el.button.ref = el;
 			$(el.button).bind('click', function(){ this.ref.click();});
-
+			
+			/*
 			el.init = function() {
 				
 				var top = $(this).parent()[0];
-				var where;
+				
 				if($(this).prev()) {
-					where = $(this).prev()[0];
+					var where = $(this).prev()[0];
 				} else {
-					where = top.childNodes[0];
+					var where = top.childNodes[0];
 				}
 				
 				// we should use the lines below, but the wrap() function is broken, clone(true) has no effect and the reference is lost
@@ -274,24 +268,29 @@ Feel free to use and modify but please keep this copyright intact.
 				this.file.insertBefore(this.left, this.center);
 				this.file.appendChild(this.button);
 				this.dummy.appendChild(this.file);
-				this.className = "NFhidden";
 				
+				this.className = "NFhidden";
 				this.relatedElement = this.clone;
 			}
+			*/
 			
+			/*
 			el.unload = function() {
 				this.parentNode.parentNode.appendChild(this);
 				this.parentNode.removeChild(this.dummy);
 				this.className = this.oldClassName;
 			}
 			
+			
+			el.onchange = el.onmouseout = function() {this.relatedElement.value = this.value;}
+			
 			$(el)
-				.bind('change', function() {
-					this.relatedElement.value = this.value;
-				})
-				.bind('mouseout', function() {
-					this.relatedElement.value = this.value;
-				})
+				//.bind('change', function() {
+				//	this.relatedElement.value = this.value;
+				//})
+				//.bind('mouseout', function() {
+				//	this.relatedElement.value = this.value;
+				//})
 				.bind('focus', function() {
 					$(this.left).addClass("NFh");
 					$(this.center).addClass("NFh");
@@ -306,6 +305,78 @@ Feel free to use and modify but please keep this copyright intact.
 					this.relatedElement.select();
 					this.value = '';
 				})
+			*/
+			
+			//el.oldClassName = el.className;
+			//el.dummy = document.createElement('div');
+			//el.dummy.className = "NFFile";
+			//el.file = document.createElement('div');
+			//el.file.className = "NFFileNew";
+			//el.center = document.createElement('div');
+			//el.center.className = "NFTextCenter";
+			//el.clone = document.createElement('input');
+			//el.clone.type = "text";
+			//el.clone.className = "NFText";
+			//el.clone.ref = el;
+			//el.left = document.createElement('img');
+			//el.left.src = options.imagesPath + "0.png";
+			//el.left.className = "NFTextLeft";
+			//el.button = document.createElement('img');
+			//el.button.src = options.imagesPath + "0.png";
+			//el.button.className = "NFFileButton";
+			//el.button.ref = el;
+			//el.button.onclick = function() {this.ref.click();}
+			
+			el.init = function() {
+				//var top = this.parentNode;
+				var top = $(this).parent()[0];
+				// if(this.previousSibling) {var where = this.previousSibling;}
+				// else {var where = top.childNodes[0];}
+				
+				if($(this).prev()) {
+					var where = this.previousSibling;
+				} else {
+					var where = top.childNodes[0];
+				}
+				
+				// we should use the lines below, but the wrap() function is broken, clone(true) has no effect and the reference is lost
+				// $(this.file).append(this.clone);
+				// $(this.clone).before(this.left).after(this.button).wrap(this.center);
+				// $(this).wrap(this.dummy).after(this.file).removeClass().addClass("NFhidden");
+				
+				top.insertBefore(this.dummy, where);
+				this.dummy.appendChild(this);
+				this.center.appendChild(this.clone);
+				this.file.appendChild(this.center);
+				this.file.insertBefore(this.left, this.center);
+				this.file.appendChild(this.button);
+				this.dummy.appendChild(this.file);
+				
+				this.className = "NFhidden";
+				this.relatedElement = this.clone;
+				
+			}
+			
+			el.unload = function() {
+				this.parentNode.parentNode.appendChild(this);
+				this.parentNode.removeChild(this.dummy);
+				this.className = this.oldClassName;
+			}
+			el.onchange = el.onmouseout = function() {this.relatedElement.value = this.value;}
+			el.onfocus = function() {
+				this.left.className = "NFTextLeft NFh";
+				this.center.className = "NFTextCenter NFh";
+				this.button.className = "NFFileButton NFh";
+			}
+			el.onblur = function() {
+				this.left.className = "NFTextLeft";
+				this.center.className = "NFTextCenter";
+				this.button.className = "NFFileButton";
+			}
+			el.onselect = function() {
+				this.relatedElement.select();
+				this.value = '';
+			}
 			
 			return el;
 		}
@@ -420,10 +491,7 @@ Feel free to use and modify but please keep this copyright intact.
 					}
 				}
 				if(this.options.selectedIndex) {
-					// console.dir(this.dummy.getElementsByTagName('div')[0]);
-					console.info(this.options.selectedIndex);
-					$('div', this.dummy)[0].innerHTML = this.options[this.options.selectedIndex].text;
-					
+					$('div', this.dummy)[0].innerHTML = this.options[this.options.selectedIndex].text;					
 					this.options[this.options.selectedIndex].lnk.className = "NFOptionActive";
 				}
 				this.dummy.style.zIndex = 999 - pos;
@@ -595,6 +663,7 @@ Feel free to use and modify but please keep this copyright intact.
 			$('input[@type=submit]', form).add($('input[@type=reset]', form)).add($('button', form)).each(function() {
 				global.niceInputSubmit(this).init();
 			});
+			
 			
 			$('input[@type=file]', form).each(function() {
 				global.niceInputFile(this).init();
